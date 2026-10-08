@@ -1,6 +1,7 @@
 import os
 import mysql.connector
 import streamlit as st
+import certifi
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,7 +10,7 @@ def get_db_connection():
     """
     Returns a MySQL database connection supporting both:
     1. Local XAMPP (using .env variables)
-    2. Streamlit Cloud / Production (using st.secrets & TiDB Cloud with SSL)
+    2. Streamlit Cloud / TiDB Cloud (using st.secrets & certifi SSL)
     """
     try:
         if hasattr(st, "secrets") and "DB_HOST" in st.secrets:
@@ -19,7 +20,7 @@ def get_db_connection():
                 user=st.secrets["DB_USER"],
                 password=st.secrets["DB_PASSWORD"],
                 database=st.secrets["DB_NAME"],
-                ssl_verify_cert=True
+                ssl_ca=certifi.where()
             )
         else:
             connection = mysql.connector.connect(
