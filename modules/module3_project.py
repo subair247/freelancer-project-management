@@ -1,4 +1,5 @@
-import mysql.connector
+import pymysql
+import pymysql.cursors
 from config.db_config import get_db_connection
 
 def add_project(client_id, project_name, milestones, deadline, project_status):
@@ -15,7 +16,7 @@ def add_project(client_id, project_name, milestones, deadline, project_status):
         cursor.execute(query, (client_id, project_name, milestones, deadline, project_status))
         connection.commit()
         return True, "Project added successfully!"
-    except mysql.connector.Error as err:
+    except Exception as err:
         return False, f"Error: {err}"
     finally:
         cursor.close()
@@ -26,7 +27,7 @@ def get_projects(user_id):
     if not connection:
         return []
     
-    cursor = connection.cursor(dictionary=True)
+    cursor = connection.cursor(pymysql.cursors.DictCursor)
     try:
         query = """
             SELECT p.*, c.client_name FROM projects p
@@ -36,7 +37,7 @@ def get_projects(user_id):
         cursor.execute(query, (user_id,))
         projects = cursor.fetchall()
         return projects
-    except mysql.connector.Error as err:
+    except Exception as err:
         print(f"Error: {err}")
         return []
     finally:

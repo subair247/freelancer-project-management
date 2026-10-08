@@ -1,4 +1,5 @@
-import mysql.connector
+import pymysql
+import pymysql.cursors
 from config.db_config import get_db_connection
 
 def add_performance_log(project_id, income_generated, feedback_score, improvisation_notes):
@@ -15,7 +16,7 @@ def add_performance_log(project_id, income_generated, feedback_score, improvisat
         cursor.execute(query, (project_id, income_generated, feedback_score, improvisation_notes))
         connection.commit()
         return True, "Analytics and performance logged successfully!"
-    except mysql.connector.Error as err:
+    except Exception as err:
         return False, f"Error: {err}"
     finally:
         cursor.close()
@@ -26,7 +27,7 @@ def get_performance_logs(user_id):
     if not connection:
         return []
     
-    cursor = connection.cursor(dictionary=True)
+    cursor = connection.cursor(pymysql.cursors.DictCursor)
     try:
         query = """
             SELECT pl.*, p.project_name, c.client_name FROM performance_logs pl
@@ -37,7 +38,7 @@ def get_performance_logs(user_id):
         cursor.execute(query, (user_id,))
         logs = cursor.fetchall()
         return logs
-    except mysql.connector.Error as err:
+    except Exception as err:
         print(f"Error: {err}")
         return []
     finally:
