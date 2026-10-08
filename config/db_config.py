@@ -10,16 +10,19 @@ def get_db_connection():
     """
     Returns a MySQL database connection supporting both:
     1. Local XAMPP (using .env variables)
-    2. Streamlit Cloud / TiDB Cloud (using st.secrets & certifi SSL)
+    2. Streamlit Cloud / TiDB Cloud (using st.secrets, certifi SSL, and flexible key names)
     """
     try:
         if hasattr(st, "secrets") and "DB_HOST" in st.secrets:
+            db_user = st.secrets.get("DB_USER") or st.secrets.get("DB_USERNAME")
+            db_name = st.secrets.get("DB_NAME") or st.secrets.get("DB_DATABASE")
+            
             connection = mysql.connector.connect(
                 host=st.secrets["DB_HOST"],
                 port=int(st.secrets.get("DB_PORT", 4000)),
-                user=st.secrets["DB_USER"],
+                user=db_user,
                 password=st.secrets["DB_PASSWORD"],
-                database=st.secrets["DB_NAME"],
+                database=db_name,
                 ssl_ca=certifi.where()
             )
         else:
