@@ -1,5 +1,6 @@
 import hashlib
-import mysql.connector
+import pymysql
+import pymysql.cursors
 from config.db_config import get_db_connection
 
 def hash_password(password):
@@ -18,7 +19,7 @@ def register_user(username, email, password, skills):
         cursor.execute(query, (username, email, password_hash, skills))
         connection.commit()
         return True, "Registration successful!"
-    except mysql.connector.Error as err:
+    except Exception as err:
         return False, f"Error: {err}"
     finally:
         cursor.close()
@@ -29,7 +30,7 @@ def login_user(email, password):
     if not connection:
         return False, "Database connection failed!"
     
-    cursor = connection.cursor(dictionary=True)
+    cursor = connection.cursor(pymysql.cursors.DictCursor)
     password_hash = hash_password(password)
     
     try:
@@ -40,7 +41,7 @@ def login_user(email, password):
             return True, user
         else:
             return False, "Invalid email or password."
-    except mysql.connector.Error as err:
+    except Exception as err:
         return False, f"Error: {err}"
     finally:
         cursor.close()
